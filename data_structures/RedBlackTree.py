@@ -114,7 +114,8 @@ class RedBlackTree:
             u.p.left = v
         else:
             u.p.right = v
-        v.p = u.p
+        if v != None:
+            v.p = u.p
 
     def search(self, x, k):
         if x == None or k == x.key:
@@ -126,31 +127,39 @@ class RedBlackTree:
 
     def insert_fixup(self, z):
         while z.p is not None and z.p.color == RED:
-            if z.p == z.p.p.left:
-                y = z.p.p.right
+            if z.p == z.p.p.left: # is z's parent a left child?
+                y = z.p.p.right   # y is z's uncle
+
+                # Case 1: y is red
                 if y is not None and y.color == RED:
                     z.p.color = BLACK
                     y.color = BLACK
                     z.p.p.color = RED
                     z = z.p.p
                 else:
+                    # Case 2: y is black and z is a right child
                     if z == z.p.right:
                         z = z.p
                         self.left_rotate(z)
+                    # Case 3: y is black and z is a left child
                     z.p.color = BLACK
                     z.p.p.color = RED
                     self.right_rotate(z.p.p)
             else:
                 y = z.p.p.left
+
+                # Case 1: y is red
                 if y is not None and y.color == RED:
                     z.p.color = BLACK
                     y.color = BLACK
                     z.p.p.color = RED
                     z = z.p.p
                 else:
+                    # Case 2: y is black and z is a left child
                     if z == z.p.left:
                         z = z.p
                         self.right_rotate(z)
+                    # Case 3: y is black and z is a right child
                     z.p.color = BLACK
                     z.p.p.color = RED
                     self.left_rotate(z.p.p)
@@ -183,45 +192,49 @@ class RedBlackTree:
 
         if z.left == None:
             x = z.right
-            self.transplant(z, z.right)
+            self.transplant(z, z.right) # replace z by its right child
         elif z.right == None:
             x = z.left
-            self.transplant(z, z.left)
-        else:
+            self.transplant(z, z.left)  # replace z by its left child
+        else:   # y is z's successor
             y = self.minimum(z.right)
             y_original_color = y.color
             x = y.right
             if y != z.right: # y is farther down the tree
-                self.transplant(y, y.right)
-                y.right = z.right
-                y.right.p = y
+                self.transplant(y, y.right)  # replace y by its right child
+                y.right = z.right            # z's right child becomes
+                y.right.p = y                # y's right child
             else:
-                x.p = y
-            self.transplant(z, y)
-            y.left = z.left
-            y.left.p = y
+                x.p = y                   # in case x is T.nil
+            self.transplant(z, y)         # replace z by y
+            y.left = z.left               # and give z's left child to y
+            y.left.p = y                  # which had no left child
             y.color = z.color
-        if y_original_color == BLACK:
-            self.delete_fixup(x)
+        if y_original_color == BLACK:     # if any red-black violations occurred
+            self.delete_fixup(x)          # correct them
 
     def delete_fixup(self, x):
         while x != self.root and x.color == BLACK:
-            if x == x.p.left:
-                w = x.p.right
+            if x == x.p.left:       # is x a left child?
+                w = x.p.right       # w is x's sibling
+                # Case 1: w is red
                 if w.color == RED:
                     w.color = BLACK
                     x.p.color = RED
                     self.left_rotate(x.p)
                     w = x.p.right
+                # Case 2: w is black and both its children are black
                 if w.left.color == BLACK and w.right.color == BLACK:
                     w.color = RED
                     x = x.p
                 else:
+                    # Case 3: w is black and w's right child is black
                     if w.right.color == BLACK:
                         w.left.color = BLACK
                         w.color = RED
                         self.right_rotate(w)
                         w = x.p.right
+                    # Case 4: w is black and w's right child is red
                     w.color = x.p.color
                     x.p.color = BLACK
                     w.right.color = BLACK
@@ -268,7 +281,7 @@ if __name__ == "__main__":
 
     # tree.insert(Node(21))
 
-    n = tree.search(tree.root, 15)
+    n = tree.search(tree.root, 12)
     tree.delete(n)
 
     G, node_colors = tree.create_treeviz()
