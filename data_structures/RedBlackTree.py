@@ -205,7 +205,10 @@ class RedBlackTree:
                 y.right = z.right            # z's right child becomes
                 y.right.p = y                # y's right child
             else:
-                x.p = y                   # in case x is T.nil
+                if x is None:
+                    x = Node(None)
+                    x.color = BLACK
+                    x.p = y               # in case x is T.nil
             self.transplant(z, y)         # replace z by y
             y.left = z.left               # and give z's left child to y
             y.left.p = y                  # which had no left child
@@ -224,12 +227,12 @@ class RedBlackTree:
                     self.left_rotate(x.p)
                     w = x.p.right
                 # Case 2: w is black and both its children are black
-                if w.left.color == BLACK and w.right.color == BLACK:
+                if (w.left is None or w.left.color == BLACK) and (w.right is None or w.right.color == BLACK):
                     w.color = RED
                     x = x.p
                 else:
                     # Case 3: w is black and w's right child is black
-                    if w.right.color == BLACK:
+                    if w.right is None or w.right.color == BLACK:
                         w.left.color = BLACK
                         w.color = RED
                         self.right_rotate(w)
@@ -243,19 +246,23 @@ class RedBlackTree:
             else:
                 w = x.p.left
                 if w.color == RED:
+                    print("Delete Fixup Case 1")
                     w.color = BLACK
                     x.p.color = RED
                     self.right_rotate(x.p)
                     w = x.p.left
-                if w.right.color == BLACK and w.left.color == BLACK:
+                if (w.right is None or w.right.color == BLACK) and (w.left is None or w.left.color == BLACK):
+                    print("Delete Fixup Case 2")
                     w.color = RED
                     x = x.p
                 else:
-                    if w.left.color == BLACK:
+                    if w.left is None or w.left.color == BLACK:
+                        print("Delete Fixup Case 3")
                         w.right.color = BLACK
                         w.color = RED
                         self.left_rotate(w)
                         w = x.p.left
+                    print("Delete Fixup Case 4")
                     w.color = x.p.color
                     x.p.color = BLACK
                     w.left.color = BLACK
@@ -279,9 +286,9 @@ if __name__ == "__main__":
     for i in values:
         tree.insert(Node(i))
 
-    # tree.insert(Node(21))
+    # tree.insert(Node(16))
 
-    n = tree.search(tree.root, 12)
+    n = tree.search(tree.root, 15)
     tree.delete(n)
 
     G, node_colors = tree.create_treeviz()
